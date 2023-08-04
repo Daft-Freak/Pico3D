@@ -1,86 +1,194 @@
-name: CMake
+
+name: Build
 
 on:
   push:
+    branches:
+      - '**' # only run on branches
   pull_request:
+  release:
+    types: [published]
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
+  EM_VERSION: 2.0.18 # Emscripten version
+  EM_CACHE_FOLDER: 'emsdk-cache' # Cache for Emscripten libs
 
 jobs:
+
   build:
+
     name: ${{matrix.name}}
     strategy:
       matrix:
         include:
           - os: ubuntu-20.04
-            name: CMake Build
+            name: Linux
+            release-suffix: LIN64
+            cmake-args: -D32BLIT_DIR=$GITHUB_WORKSPACE/32blit-sdk
+            apt-packages: libsdl2-dev libsdl2-image-dev libsdl2-net-dev python3-setuptools
+
+          - os: ubuntu-20.04
+            name: STM32
+            release-suffix: STM32
+            cmake-args: -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/32blit-sdk/32blit.toolchain
+            apt-packages: gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib python3-setuptools
+
+          - os: ubuntu-20.04
+            pico-sdk: true
+            name: PicoSystem
             cache-key: picosystem
-            cmake-args: -DPICO_SDK_PATH=$GITHUB_WORKSPACE/pico-sdk -DPICOSYSTEM_DIR=$GITHUB_WORKSPACE/picosystem -DPICO_BOARD=pimoroni_picosystem -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-            apt-packages: ccache gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib python3-setuptools
+            release-suffix: PicoSystem
+            cmake-args: -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/32blit-sdk/pico.toolchain -DPICO_BOARD=pimoroni_picosystem
+            apt-packages: gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib python3-setuptools
+
+          - os: ubuntu-20.04
+            name: Emscripten
+            release-suffix: WEB
+            cmake-args: -D32BLIT_DIR=$GITHUB_WORKSPACE/32blit-sdk
+            cmake-prefix: emcmake
+            apt-packages: python3-setuptools
+
+          - os: macos-latest
+            name: macOS
+            release-suffix: MACOS
+            cmake-args: -D32BLIT_DIR=$GITHUB_WORKSPACE/32blit-sdk
+            brew-packages: sdl2 sdl2_image sdl2_net
+
+          - os: windows-latest
+            name: Visual Studio
+            release-suffix: WIN64
+            cmake-args: -D32BLIT_DIR=$GITHUB_WORKSPACE/32blit-sdk
 
     runs-on: ${{matrix.os}}
 
     env:
-      RELEASE_FILE: ${{github.event.repository.name}}-${{github.sha}}
+      RELEASE_FILE: ${{github.event.repository.name}}-${{github.event.release.tag_name}}-${{matrix.release-suffix}}
 
     steps:
-    - name: Checkout Code
+    # Check out the main repo
+    - name: Checkout
       uses: actions/checkout@v3
       with:
-        path: code
+        path: main
 
-    # PicoSystem SDK
-    - name: Checkout PicoSystem SDK
+    # Check out the 32Blit API we build against
+    - name: Checkout 32Blit API
       uses: actions/checkout@v3
       with:
-        repository: pimoroni/picosystem
-        path: picosystem
-        submodules: true 
+        repository: 32blit/32blit-sdk
+        path: 32blit-sdk
 
-    # Pico SDK
+    # pico sdk for some builds
     - name: Checkout Pico SDK
-      uses: actions/checkout@v3
+      if: matrix.pico-sdk
+      uses: actions/checkout@v2
       with:
         repository: raspberrypi/pico-sdk
         path: pico-sdk
         submodules: true
 
-    - name: Cache
-      uses: actions/cache@v3
-      with:
-        path: /home/runner/.ccache
-        key: ccache-${{matrix.cache-key}}-${{github.ref}}-${{github.sha}}
-        restore-keys: |
-          ccache-${{matrix.cache-key}}-${{github.ref}}
-          ccache-${{matrix.cache-key}}-
-
-    # Linux deps
-    - name: Install deps
+    # Linux dependencies
+    - name: Install Linux deps
       if: runner.os == 'Linux'
       run: |
         sudo apt update && sudo apt install ${{matrix.apt-packages}}
+        pip3 install 32blit
 
+    # MacOS dependencies
+    - name: Install macOS deps
+      if: runner.os == 'macOS'
+      run: |
+        brew install ${{matrix.brew-packages}}
+        python3 -m pip install 32blit
+
+    # Windows dependencies
+    - name: Install Windows deps
+      if: runner.os == 'Windows'
+      shell: bash
+      run: |
+        python -m pip install 32blit
+
+    # Emscripten SDK setup
+    - name: Setup Emscripten cache
+      if: matrix.name == 'Emscripten'
+      id: cache-system-libraries
+      uses: actions/cache@v3
+      with:
+        path: ${{env.EM_CACHE_FOLDER}}
+        key: ${{env.EM_VERSION}}-${{runner.os}}
+
+    - name: Setup Emscripten
+      if: matrix.name == 'Emscripten'
+      uses: mymindstorm/setup-emsdk@v12
+      with:
+        version: ${{env.EM_VERSION}}
+        actions-cache-folder: ${{env.EM_CACHE_FOLDER}}
+
+    - name: Pre-build Emscripten ports
+      if: matrix.name == 'Emscripten'
+      run: embuilder.py build sdl2 sdl2-image-jpg sdl2-net
+
+    # Set up the cmake build environment
     - name: Create Build Environment
-      run: |
-        cmake -E make_directory ${{runner.workspace}}/build
+      run: cmake -E make_directory ${{runner.workspace}}/main/build
 
-    - name: Configure CMake (Examples)
+    # Ask cmake to build the makefiles
+    - name: Configure CMake
       shell: bash
-      working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE/code -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCPACK_PACKAGE_FILE_NAME=${{env.RELEASE_FILE}} ${{matrix.cmake-args}}
+      working-directory: ${{runner.workspace}}/main/build
+      run: ${{matrix.cmake-prefix}} cmake $GITHUB_WORKSPACE/main -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCPACK_PACKAGE_FILE_NAME=${{env.RELEASE_FILE}} -DCMAKE_INSTALL_PREFIX=`pwd`/install ${{matrix.cmake-args}}
 
+    # And then run the build itself
     - name: Build
-      working-directory: ${{runner.workspace}}/build
+      working-directory: ${{runner.workspace}}/main/build
       shell: bash
       run: |
-        ccache --zero-stats || true
         cmake --build . --config $BUILD_TYPE -j 2
-        ccache --show-stats || true
+
+    - name: Prepare Artifact
+      if: github.event_name != 'release'
+      working-directory: ${{runner.workspace}}/main/build
+      shell: bash
+      run: |
+        cmake --build . --config $BUILD_TYPE --target install
 
     - name: Upload Artifact
+      if: github.event_name != 'release'
       uses: actions/upload-artifact@v3
       with:
         name: ${{env.RELEASE_FILE}}
-        path: ${{runner.workspace}}/build/
+        path: ${{runner.workspace}}/main/build/install
+
+
+    # When it's a release, generate tar/zip files of the build
+    - name: Package Release
+      if: github.event_name == 'release' && matrix.release-suffix != ''
+      shell: bash
+      working-directory: ${{runner.workspace}}/main/build
+      run: |
+        cmake --build . --config $BUILD_TYPE --target package
+
+    # Push the tar file to the release
+    - name: Upload tar
+      if: github.event_name == 'release' && matrix.release-suffix != ''
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      with:
+        asset_path: ${{runner.workspace}}/main/build/${{env.RELEASE_FILE}}.tar.gz
+        upload_url: ${{github.event.release.upload_url}}
+        asset_name: ${{env.RELEASE_FILE}}.tar.gz
+        asset_content_type: application/octet-stream
+
+    # Push the zip file to the release
+    - name: Upload zip
+      if: github.event_name == 'release' && matrix.release-suffix != ''
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      with:
+        asset_path: ${{runner.workspace}}/main/build/${{env.RELEASE_FILE}}.zip
+        upload_url: ${{github.event.release.upload_url}}
+        asset_name: ${{env.RELEASE_FILE}}.zip
+        asset_content_type: application/zip
