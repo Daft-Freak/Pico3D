@@ -225,36 +225,36 @@ void RASTERIZE_SECTION render_rasterize(uint32_t num_triangle, color_t *fb) {
                 } else if (shader_id == 2) {
 
                     color_t color = triangle_list_current[current_triangle].vertex_parameter1.color;
-                    uint8_t c1r = color & 0x000F;
-                    uint8_t c1b = (color >> 8) & 0x000F;
-                    uint8_t c1g = (color >> 12) & 0x000F;
+                    uint8_t c1r = color & 0x001F;
+                    uint8_t c1b = (color >> 11) & 0x001F;
+                    uint8_t c1g = (color >> 5) & 0x003F;
 
                     color = triangle_list_current[current_triangle].vertex_parameter2.color;
-                    uint8_t c2r = color & 0x000F;
-                    uint8_t c2b = (color >> 8) & 0x000F;
-                    uint8_t c2g = (color >> 12) & 0x000F;
+                    uint8_t c2r = color & 0x001F;
+                    uint8_t c2b = (color >> 11) & 0x001F;
+                    uint8_t c2g = (color >> 5) & 0x003F;
                     
                     color = triangle_list_current[current_triangle].vertex_parameter3.color;
-                    uint8_t c3r = color & 0x000F;
-                    uint8_t c3b = (color >> 8) & 0x000F;
-                    uint8_t c3g = (color >> 12) & 0x000F;
+                    uint8_t c3r = color & 0x001F;
+                    uint8_t c3b = (color >> 11) & 0x001F;
+                    uint8_t c3g = (color >> 5) & 0x003F;
 
                     uint32_t r = (w1 * c1r + w2 * c2r + w3 * c3r) / FIXED_POINT_FACTOR;
                     uint32_t g = (w1 * c1g + w2 * c2g + w3 * c3g) / FIXED_POINT_FACTOR;
                     uint32_t b = (w1 * c1b + w2 * c2b + w3 * c3b) / FIXED_POINT_FACTOR;
 
                     //we have to give a small positive bias
-                    if (r < 15)
+                    if (r < 31)
                         r++;
-                    if (g < 15)
+                    if (g < 63)
                         g++;
-                    if (b < 15)
+                    if (b < 31)
                         b++;
 
-                    color = g;
-                    color <<= 4;
-                    color |= b;
-                    color <<= 8;
+                    color = b;
+                    color <<= 6;
+                    color |= g;
+                    color <<= 5;
                     color |= r;
 
                     fb[y * SCREEN_WIDTH + x] = color;
@@ -305,6 +305,7 @@ void RASTERIZE_SECTION render_rasterize(uint32_t num_triangle, color_t *fb) {
 
                 
                 #ifdef DEBUG_SHADERS
+                // FIXME: colours
 
                 //DEBUG SHADERS
                 //the following shaders are additional debug shaders, starting at ID 250

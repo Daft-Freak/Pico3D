@@ -296,14 +296,16 @@ class Pico3dExport(bpy.types.Operator):
                     for pixel in n.image.pixels:
                         #print(pixel)
                         if (counter % 4 == 0): #R
-                            r = hex(int(pixel * 15))[2:]
+                            r = int(pixel * 31)
                             #self.texture_data += "0x" + hex(int(pixel * 15))[2:]
                         elif (counter % 4 == 1): #G
-                            g = hex(int(pixel * 15))[2:]
+                            g = int(pixel * 63)
                             #self.texture_data += hex(int(pixel * 15))[2:] + '0'
                         elif (counter % 4 == 2): #B
-                            b = hex(int(pixel * 15))[2:]
-                            self.texture_data += "0x" + str(g) + str(b) + '0' + str(r)
+                            b = int(pixel * 31)
+
+                            col = r | g << 5 | b << 11
+                            self.texture_data += f"0x{col:04X}"
                             #self.texture_data += hex(int(pixel * 15))[2:]
                             
                         counter += 1
@@ -371,17 +373,17 @@ class Pico3dExport(bpy.types.Operator):
                 #print(colors.data[tri.vertices[0]].color[3]) #alpha channel
                 if colors:
                     
-                    r1 = hex(int((colors.data[tri.loops[0]].color[0]) * 15))
-                    g1 = hex(int((colors.data[tri.loops[0]].color[1]) * 15))
-                    b1 = hex(int((colors.data[tri.loops[0]].color[2]) * 15))
+                    r1 = int((colors.data[tri.loops[0]].color[0]) * 31)
+                    g1 = int((colors.data[tri.loops[0]].color[1]) * 63)
+                    b1 = int((colors.data[tri.loops[0]].color[2]) * 31)
                     
-                    r2 = hex(int((colors.data[tri.loops[1]].color[0]) * 15))
-                    g2 = hex(int((colors.data[tri.loops[1]].color[1]) * 15))
-                    b2 = hex(int((colors.data[tri.loops[1]].color[2]) * 15))
+                    r2 = int((colors.data[tri.loops[1]].color[0]) * 31)
+                    g2 = int((colors.data[tri.loops[1]].color[1]) * 63)
+                    b2 = int((colors.data[tri.loops[1]].color[2]) * 31)
                     
-                    r3 = hex(int((colors.data[tri.loops[2]].color[0]) * 15))
-                    g3 = hex(int((colors.data[tri.loops[2]].color[1]) * 15))
-                    b3 = hex(int((colors.data[tri.loops[2]].color[2]) * 15))
+                    r3 = int((colors.data[tri.loops[2]].color[0]) * 31)
+                    g3 = int((colors.data[tri.loops[2]].color[1]) * 63)
+                    b3 = int((colors.data[tri.loops[2]].color[2]) * 31)
                     
 
                                     
@@ -402,20 +404,24 @@ class Pico3dExport(bpy.types.Operator):
                 else:
                     shader_id = 2
                     
-                    r1 = hex(15)
-                    g1 = hex(0)
-                    b1 = hex(0)
-                    r2 = hex(0)
-                    g2 = hex(15)
-                    b2 = hex(0)
-                    r3 = hex(0)
-                    g3 = hex(0)
-                    b3 = hex(15)
+                    r1 = 31
+                    g1 = 0
+                    b1 = 0
+                    r2 = 0
+                    g2 = 63
+                    b2 = 0
+                    r3 = 0
+                    g3 = 0
+                    b3 = 31
                     
                     
                 vertices += str(shader_id) + ", 0, "
+
+                col1 = r1 | g1 << 5 | b1 << 11
+                col2 = r2 | g2 << 5 | b2 << 11
+                col3 = r3 | g3 << 5 | b3 << 11
                 
-                vertices += "0x" + g1[2:] + b1[2:] + "0" + r1[2:] + ", 0x" + g2[2:] + b2[2:] + "0" + r2[2:] + ", 0x" + g3[2:] + b3[2:] + "0" + r3[2:]
+                vertices += f'0x{col1:04X}, 0x{col2:04X}, 0x{col3:04X}'
             
             
             

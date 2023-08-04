@@ -13,7 +13,7 @@ void init_quest_npcs() {
     //Guard at the gate
     npc_quest_list[0].status = 1;
     npc_quest_list[0].direction = 2;
-    npc_quest_list[0].shirt_color = 0x0F00; 
+    npc_quest_list[0].shirt_color = 0xF800; 
     npc_quest_list[0].dialogue = 0; 
     npc_quest_list[0].x = -5 * FIXED_POINT_FACTOR;
     npc_quest_list[0].y = -1 * FIXED_POINT_FACTOR;
@@ -22,7 +22,7 @@ void init_quest_npcs() {
     //Seller at the stable
     npc_quest_list[1].status = 1;
     npc_quest_list[1].direction = 2;
-    npc_quest_list[1].shirt_color = 0x0F0F; 
+    npc_quest_list[1].shirt_color = 0xF81F; 
     npc_quest_list[1].dialogue = 10; 
     npc_quest_list[1].x = 45 * FIXED_POINT_FACTOR;
     npc_quest_list[1].y = -41 * FIXED_POINT_FACTOR;
@@ -31,7 +31,7 @@ void init_quest_npcs() {
     //Fireplace guy
     npc_quest_list[2].status = 1;
     npc_quest_list[2].direction = 1;
-    npc_quest_list[2].shirt_color = 0xAF0A;
+    npc_quest_list[2].shirt_color = 0xFD14;
     npc_quest_list[2].dialogue = 20;
     npc_quest_list[2].x = 48 * FIXED_POINT_FACTOR;
     npc_quest_list[2].y = -35 * FIXED_POINT_FACTOR;
@@ -181,7 +181,7 @@ void render_quest_npcs() {
 
 
                     new_triangle.shader_id = npc[j].shader_id;
-                    if(npc[j].vertex_parameter1.color == 0xf000) {
+                    if(npc[j].vertex_parameter1.color == 0x07E0) {
                         new_triangle.vertex_parameter1.color = npc_quest_list[i].shirt_color;
                         new_triangle.vertex_parameter2.color = npc_quest_list[i].shirt_color;
                         new_triangle.vertex_parameter3.color = npc_quest_list[i].shirt_color;

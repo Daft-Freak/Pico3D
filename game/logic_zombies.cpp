@@ -55,15 +55,15 @@ void logic_zombies() {
                 zombie_list[i].x = (chunk_y * CHUNK_SIZE) + ((CHUNK_SIZE / 2) + CHUNK_OFFSET_Y);
                 zombie_list[i].y = (chunk_x * CHUNK_SIZE) + ((CHUNK_SIZE / 2) + CHUNK_OFFSET_X);
                 
-                uint8_t r = random(0, 15);
-                uint8_t g = random(0, 15);
-                uint8_t b = random(0, 15);
+                uint8_t r = random(0, 31);
+                uint8_t g = random(0, 63);
+                uint8_t b = random(0, 31);
 
                 //create random shirt color
-                uint16_t color = g;
-                color <<= 4;
-                color |= b;
-                color <<= 8;
+                uint16_t color = b;
+                color <<= 6;
+                color |= g;
+                color <<= 5;
                 color |= r;
 
                 zombie_list[i].shirt_color = color;
@@ -385,7 +385,7 @@ void zombie_dead_pose(struct triangle_16 *npc_movement, int16_t progress, int32_
         new_triangle.shader_id = zombie_fast_stand[j].shader_id;
 
         
-        if(zombie_fast_stand[j].vertex_parameter1.color == 0xf000) {
+        if(zombie_fast_stand[j].vertex_parameter1.color == 0x07E0) {
 
             new_triangle.vertex_parameter1.color = zombie_list[i].shirt_color;
             new_triangle.vertex_parameter2.color = zombie_list[i].shirt_color;
@@ -394,19 +394,19 @@ void zombie_dead_pose(struct triangle_16 *npc_movement, int16_t progress, int32_
         } else {
 
             
-            if(zombie_fast_stand[j].vertex_parameter1.color == 0xf000) {
+            if(zombie_fast_stand[j].vertex_parameter1.color == 0x07E0) {
                 new_triangle.vertex_parameter1.color = zombie_list[i].shirt_color;
             } else {
                 new_triangle.vertex_parameter1.color = zombie_fast_stand[j].vertex_parameter1.color;
             }
 
-            if(zombie_fast_stand[j].vertex_parameter2.color == 0xf000) {
+            if(zombie_fast_stand[j].vertex_parameter2.color == 0x07E0) {
                 new_triangle.vertex_parameter2.color = zombie_list[i].shirt_color;
             } else {
                 new_triangle.vertex_parameter2.color = zombie_fast_stand[j].vertex_parameter2.color;
             }
 
-            if(zombie_fast_stand[j].vertex_parameter3.color == 0xf000) {
+            if(zombie_fast_stand[j].vertex_parameter3.color == 0x07E0) {
                 new_triangle.vertex_parameter3.color = zombie_list[i].shirt_color;
             } else {
                 new_triangle.vertex_parameter3.color = zombie_fast_stand[j].vertex_parameter3.color;
@@ -502,7 +502,7 @@ void zombie_slouch_pose(struct triangle_16 *npc_movement, int16_t progress, int3
         new_triangle.shader_id = zombie_fast_stand[j].shader_id;
 
         
-        if(zombie_fast_stand[j].vertex_parameter1.color == 0xf000) {
+        if(zombie_fast_stand[j].vertex_parameter1.color == 0x07E0) {
 
             new_triangle.vertex_parameter1.color = zombie_list[i].shirt_color;
             new_triangle.vertex_parameter2.color = zombie_list[i].shirt_color;
@@ -511,19 +511,19 @@ void zombie_slouch_pose(struct triangle_16 *npc_movement, int16_t progress, int3
         } else {
 
             
-            if(zombie_fast_stand[j].vertex_parameter1.color == 0xf000) {
+            if(zombie_fast_stand[j].vertex_parameter1.color == 0x07E0) {
                 new_triangle.vertex_parameter1.color = zombie_list[i].shirt_color;
             } else {
                 new_triangle.vertex_parameter1.color = zombie_fast_stand[j].vertex_parameter1.color;
             }
 
-            if(zombie_fast_stand[j].vertex_parameter2.color == 0xf000) {
+            if(zombie_fast_stand[j].vertex_parameter2.color == 0x07E0) {
                 new_triangle.vertex_parameter2.color = zombie_list[i].shirt_color;
             } else {
                 new_triangle.vertex_parameter2.color = zombie_fast_stand[j].vertex_parameter2.color;
             }
 
-            if(zombie_fast_stand[j].vertex_parameter3.color == 0xf000) {
+            if(zombie_fast_stand[j].vertex_parameter3.color == 0x07E0) {
                 new_triangle.vertex_parameter3.color = zombie_list[i].shirt_color;
             } else {
                 new_triangle.vertex_parameter3.color = zombie_fast_stand[j].vertex_parameter3.color;
@@ -619,7 +619,7 @@ void zombie_attack_pose(struct triangle_16 *npc_movement, int16_t progress, int3
         new_triangle.shader_id = zombie_fast_stand[j].shader_id;
 
         
-        if(zombie_fast_stand[j].vertex_parameter1.color == 0xf000) {
+        if(zombie_fast_stand[j].vertex_parameter1.color == 0x07E0) {
 
             new_triangle.vertex_parameter1.color = zombie_list[i].shirt_color;
             new_triangle.vertex_parameter2.color = zombie_list[i].shirt_color;
@@ -628,19 +628,19 @@ void zombie_attack_pose(struct triangle_16 *npc_movement, int16_t progress, int3
         } else {
 
             
-            if(zombie_fast_stand[j].vertex_parameter1.color == 0xf000) {
+            if(zombie_fast_stand[j].vertex_parameter1.color == 0x07E0) {
                 new_triangle.vertex_parameter1.color = zombie_list[i].shirt_color;
             } else {
                 new_triangle.vertex_parameter1.color = zombie_fast_stand[j].vertex_parameter1.color;
             }
 
-            if(zombie_fast_stand[j].vertex_parameter2.color == 0xf000) {
+            if(zombie_fast_stand[j].vertex_parameter2.color == 0x07E0) {
                 new_triangle.vertex_parameter2.color = zombie_list[i].shirt_color;
             } else {
                 new_triangle.vertex_parameter2.color = zombie_fast_stand[j].vertex_parameter2.color;
             }
 
-            if(zombie_fast_stand[j].vertex_parameter3.color == 0xf000) {
+            if(zombie_fast_stand[j].vertex_parameter3.color == 0x07E0) {
                 new_triangle.vertex_parameter3.color = zombie_list[i].shirt_color;
             } else {
                 new_triangle.vertex_parameter3.color = zombie_fast_stand[j].vertex_parameter3.color;
@@ -736,7 +736,7 @@ void zombie_walk(struct triangle_16 *npc_movement, int16_t progress, int32_t i) 
         new_triangle.shader_id = zombie_fast_stand[j].shader_id;
 
         
-        if(zombie_fast_stand[j].vertex_parameter1.color == 0xf000) {
+        if(zombie_fast_stand[j].vertex_parameter1.color == 0x07E0) {
 
             new_triangle.vertex_parameter1.color = zombie_list[i].shirt_color;
             new_triangle.vertex_parameter2.color = zombie_list[i].shirt_color;
@@ -745,19 +745,19 @@ void zombie_walk(struct triangle_16 *npc_movement, int16_t progress, int32_t i) 
         } else {
 
             
-            if(zombie_fast_stand[j].vertex_parameter1.color == 0xf000) {
+            if(zombie_fast_stand[j].vertex_parameter1.color == 0x07E0) {
                 new_triangle.vertex_parameter1.color = zombie_list[i].shirt_color;
             } else {
                 new_triangle.vertex_parameter1.color = zombie_fast_stand[j].vertex_parameter1.color;
             }
 
-            if(zombie_fast_stand[j].vertex_parameter2.color == 0xf000) {
+            if(zombie_fast_stand[j].vertex_parameter2.color == 0x07E0) {
                 new_triangle.vertex_parameter2.color = zombie_list[i].shirt_color;
             } else {
                 new_triangle.vertex_parameter2.color = zombie_fast_stand[j].vertex_parameter2.color;
             }
 
-            if(zombie_fast_stand[j].vertex_parameter3.color == 0xf000) {
+            if(zombie_fast_stand[j].vertex_parameter3.color == 0x07E0) {
                 new_triangle.vertex_parameter3.color = zombie_list[i].shirt_color;
             } else {
                 new_triangle.vertex_parameter3.color = zombie_fast_stand[j].vertex_parameter3.color;
@@ -853,7 +853,7 @@ void zombie_decompose(int16_t progress, int32_t i) {
         new_triangle.shader_id = zombie_fast_stand[j].shader_id;
 
         
-        if(zombie_fast_stand[j].vertex_parameter1.color == 0xf000) {
+        if(zombie_fast_stand[j].vertex_parameter1.color == 0x07E0) {
 
             new_triangle.vertex_parameter1.color = zombie_list[i].shirt_color;
             new_triangle.vertex_parameter2.color = zombie_list[i].shirt_color;
@@ -862,19 +862,19 @@ void zombie_decompose(int16_t progress, int32_t i) {
         } else {
 
             
-            if(zombie_fast_stand[j].vertex_parameter1.color == 0xf000) {
+            if(zombie_fast_stand[j].vertex_parameter1.color == 0x07E0) {
                 new_triangle.vertex_parameter1.color = zombie_list[i].shirt_color;
             } else {
                 new_triangle.vertex_parameter1.color = zombie_fast_stand[j].vertex_parameter1.color;
             }
 
-            if(zombie_fast_stand[j].vertex_parameter2.color == 0xf000) {
+            if(zombie_fast_stand[j].vertex_parameter2.color == 0x07E0) {
                 new_triangle.vertex_parameter2.color = zombie_list[i].shirt_color;
             } else {
                 new_triangle.vertex_parameter2.color = zombie_fast_stand[j].vertex_parameter2.color;
             }
 
-            if(zombie_fast_stand[j].vertex_parameter3.color == 0xf000) {
+            if(zombie_fast_stand[j].vertex_parameter3.color == 0x07E0) {
                 new_triangle.vertex_parameter3.color = zombie_list[i].shirt_color;
             } else {
                 new_triangle.vertex_parameter3.color = zombie_fast_stand[j].vertex_parameter3.color;
@@ -970,7 +970,7 @@ void zombie_run(struct triangle_16 *npc_movement, int16_t progress, int32_t i) {
         new_triangle.shader_id = zombie_fast_stand[j].shader_id;
 
         
-        if(zombie_fast_stand[j].vertex_parameter1.color == 0xf000) {
+        if(zombie_fast_stand[j].vertex_parameter1.color == 0x07E0) {
 
             new_triangle.vertex_parameter1.color = zombie_list[i].shirt_color;
             new_triangle.vertex_parameter2.color = zombie_list[i].shirt_color;
@@ -979,19 +979,19 @@ void zombie_run(struct triangle_16 *npc_movement, int16_t progress, int32_t i) {
         } else {
 
             
-            if(zombie_fast_stand[j].vertex_parameter1.color == 0xf000) {
+            if(zombie_fast_stand[j].vertex_parameter1.color == 0x07E0) {
                 new_triangle.vertex_parameter1.color = zombie_list[i].shirt_color;
             } else {
                 new_triangle.vertex_parameter1.color = zombie_fast_stand[j].vertex_parameter1.color;
             }
 
-            if(zombie_fast_stand[j].vertex_parameter2.color == 0xf000) {
+            if(zombie_fast_stand[j].vertex_parameter2.color == 0x07E0) {
                 new_triangle.vertex_parameter2.color = zombie_list[i].shirt_color;
             } else {
                 new_triangle.vertex_parameter2.color = zombie_fast_stand[j].vertex_parameter2.color;
             }
 
-            if(zombie_fast_stand[j].vertex_parameter3.color == 0xf000) {
+            if(zombie_fast_stand[j].vertex_parameter3.color == 0x07E0) {
                 new_triangle.vertex_parameter3.color = zombie_list[i].shirt_color;
             } else {
                 new_triangle.vertex_parameter3.color = zombie_fast_stand[j].vertex_parameter3.color;
@@ -1111,19 +1111,19 @@ void render_zombies() {
 
                             new_triangle.shader_id = zombie_fast_stand[j].shader_id;
                             
-                            if(zombie_fast_stand[j].vertex_parameter1.color == 0xf000) {
+                            if(zombie_fast_stand[j].vertex_parameter1.color == 0x07E0) {
                                 new_triangle.vertex_parameter1.color = zombie_list[i].shirt_color;
                             } else {
                                 new_triangle.vertex_parameter1.color = zombie_fast_stand[j].vertex_parameter1.color;
                             }
 
-                            if(zombie_fast_stand[j].vertex_parameter2.color == 0xf000) {
+                            if(zombie_fast_stand[j].vertex_parameter2.color == 0x07E0) {
                                 new_triangle.vertex_parameter2.color = zombie_list[i].shirt_color;
                             } else {
                                 new_triangle.vertex_parameter2.color = zombie_fast_stand[j].vertex_parameter2.color;
                             }
 
-                            if(zombie_fast_stand[j].vertex_parameter3.color == 0xf000) {
+                            if(zombie_fast_stand[j].vertex_parameter3.color == 0x07E0) {
                                 new_triangle.vertex_parameter3.color = zombie_list[i].shirt_color;
                             } else {
                                 new_triangle.vertex_parameter3.color = zombie_fast_stand[j].vertex_parameter3.color;
@@ -1208,19 +1208,19 @@ void render_zombies() {
 
                         new_triangle.shader_id = zombie_fast_stand[j].shader_id;
 
-                            if(zombie_fast_stand[j].vertex_parameter1.color == 0xf000) {
+                            if(zombie_fast_stand[j].vertex_parameter1.color == 0x07E0) {
                                 new_triangle.vertex_parameter1.color = zombie_list[i].shirt_color;
                             } else {
                                 new_triangle.vertex_parameter1.color = zombie_fast_stand[j].vertex_parameter1.color;
                             }
 
-                            if(zombie_fast_stand[j].vertex_parameter2.color == 0xf000) {
+                            if(zombie_fast_stand[j].vertex_parameter2.color == 0x07E0) {
                                 new_triangle.vertex_parameter2.color = zombie_list[i].shirt_color;
                             } else {
                                 new_triangle.vertex_parameter2.color = zombie_fast_stand[j].vertex_parameter2.color;
                             }
 
-                            if(zombie_fast_stand[j].vertex_parameter3.color == 0xf000) {
+                            if(zombie_fast_stand[j].vertex_parameter3.color == 0x07E0) {
                                 new_triangle.vertex_parameter3.color = zombie_list[i].shirt_color;
                             } else {
                                 new_triangle.vertex_parameter3.color = zombie_fast_stand[j].vertex_parameter3.color;

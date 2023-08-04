@@ -32,15 +32,15 @@ void logic_zombies() {
                 zombie_list[i].x = (chunk_y * CHUNK_SIZE) + ((CHUNK_SIZE / 2) + CHUNK_OFFSET_Y);
                 zombie_list[i].y = (chunk_x * CHUNK_SIZE) + ((CHUNK_SIZE / 2) + CHUNK_OFFSET_X);
                 
-                uint8_t r = random(0, 15);
-                uint8_t g = random(0, 15);
-                uint8_t b = random(0, 15);
+                uint8_t r = random(0, 31);
+                uint8_t g = random(0, 63);
+                uint8_t b = random(0, 31);
 
                 //create random shirt color
-                uint16_t color = g;
-                color <<= 4;
-                color |= b;
-                color <<= 8;
+                uint16_t color = b;
+                color <<= 6;
+                color |= g;
+                color <<= 5;
                 color |= r;
 
                 zombie_list[i].shirt_color = color;
@@ -152,11 +152,11 @@ void pop_animation(struct triangle_16 *npc_movement, int16_t progress, int32_t i
         new_triangle.vertex_parameter2.color = zombie_list[i].shirt_color;
 
         if (j % 3 == 0) {
-            new_triangle.vertex_parameter3.color = 0xF000;
+            new_triangle.vertex_parameter3.color = 0x07E0;
         } else if (j % 3 == 1) {
-            new_triangle.vertex_parameter3.color = 0x0F00;
+            new_triangle.vertex_parameter3.color = 0xF800;
         } else if (j % 3 == 2) {
-            new_triangle.vertex_parameter3.color = 0x000F;
+            new_triangle.vertex_parameter3.color = 0x001F;
         }
 
 
@@ -221,11 +221,11 @@ void render_zombies() {
                         
                         
                         if (j % 3 == 0) {
-                            new_triangle.vertex_parameter3.color = 0xF000;
+                            new_triangle.vertex_parameter3.color = 0x07E0;
                         } else if (j % 3 == 1) {
-                            new_triangle.vertex_parameter3.color = 0x0F00;
+                            new_triangle.vertex_parameter3.color = 0xF800;
                         } else if (j % 3 == 2) {
-                            new_triangle.vertex_parameter3.color = 0x000F;
+                            new_triangle.vertex_parameter3.color = 0x001F;
                         }
 
 

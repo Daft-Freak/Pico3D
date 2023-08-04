@@ -53,15 +53,15 @@ void logic_npc() {
                 npc_list[i].x = (chunk_y * CHUNK_SIZE) + ((CHUNK_SIZE / 2) + CHUNK_OFFSET_Y);
                 npc_list[i].y = (chunk_x * CHUNK_SIZE) + ((CHUNK_SIZE / 2) + CHUNK_OFFSET_X);
                 
-                uint8_t r = random(0, 15);
-                uint8_t g = random(0, 15);
-                uint8_t b = random(0, 15);
+                uint8_t r = random(0, 31);
+                uint8_t g = random(0, 63);
+                uint8_t b = random(0, 31);
 
                 //create random shirt color
-                uint16_t color = g;
-                color <<= 4;
-                color |= b;
-                color <<= 8;
+                uint16_t color = b;
+                color <<= 6;
+                color |= g;
+                color <<= 5;
                 color |= r;
 
                 npc_list[i].shirt_color = color;
@@ -203,7 +203,7 @@ void npc_interpolate(struct triangle_16 *npc_movement, int16_t progress, int32_t
         new_triangle.shader_id = npc[j].shader_id;
 
         
-        if(npc[j].vertex_parameter1.color == 0xf000) {
+        if(npc[j].vertex_parameter1.color == 0x07E0) {
 
             new_triangle.vertex_parameter1.color = npc_list[i].shirt_color;
             new_triangle.vertex_parameter2.color = npc_list[i].shirt_color;
@@ -300,7 +300,7 @@ void render_npcs() {
                             new_triangle.vertex3.z = npc[j].vertex3.z + npc_list[i].y;
 
                             new_triangle.shader_id = npc[j].shader_id;
-                            if(npc[j].vertex_parameter1.color == 0xf000) {
+                            if(npc[j].vertex_parameter1.color == 0x07E0) {
                                 new_triangle.vertex_parameter1.color = npc_list[i].shirt_color;
                                 new_triangle.vertex_parameter2.color = npc_list[i].shirt_color;
                                 new_triangle.vertex_parameter3.color = npc_list[i].shirt_color;
@@ -336,7 +336,7 @@ void render_npcs() {
                         new_triangle.vertex3.z = npc[j].vertex3.z + npc_list[i].y;
 
                         new_triangle.shader_id = npc[j].shader_id;
-                            if(npc[j].vertex_parameter1.color == 0xf000) {
+                            if(npc[j].vertex_parameter1.color == 0x07E0) {
                                 new_triangle.vertex_parameter1.color = npc_list[i].shirt_color;
                                 new_triangle.vertex_parameter2.color = npc_list[i].shirt_color;
                                 new_triangle.vertex_parameter3.color = npc_list[i].shirt_color;

@@ -74,30 +74,30 @@ color_t grass_color(color_t color) {
         return color;
     } else {
 
-        uint8_t r = color & 0x000F;
-        uint8_t b = (color >> 8) & 0x000F;
-        uint8_t g = (color >> 12) & 0x000F;
+        uint8_t r = color & 0x001F;
+        uint8_t b = (color >> 11) & 0x001F;
+        uint8_t g = (color >> 5) & 0x003F;
 
         //reduce colors
         r-=light_falloff;
         b+=light_falloff; //gives the grass a blue sheen at night
         g-=light_falloff;
 
-        if (r > 15)
+        if (r > 31)
             r = 0;
 
         
-        if (b > 15)
+        if (b > 31)
             b = 0;
 
 
-        if (g > 15)
+        if (g > 63)
             g = 0;
 
-        color = g;
-        color <<= 4;
-        color |= b;
-        color <<= 8;
+        color = b;
+        color <<= 6;
+        color |= g;
+        color <<= 5;
         color |= r;
 
         return color;

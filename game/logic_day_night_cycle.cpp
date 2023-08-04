@@ -61,11 +61,11 @@ void logic_day_night_cycle() {
 
 
     //write final sky color
-    sky = sky_g;
-    sky <<= 4;
-    sky |= sky_b;
-    sky <<= 8;
-    sky |= sky_r;
+    sky = sky_b * 2;
+    sky <<= 6;
+    sky |= sky_g * 4;
+    sky <<= 5;
+    sky |= sky_r * 2;
 
 
 }
