@@ -21,7 +21,7 @@ uint8_t animated_texture_counter = 0;
 //Note that if the rasterizer is run from flash instead, the integer divide function should also be put into flash
 // --> Remove target_compile_definitions(pico3d PUBLIC PICO_DIVIDER_IN_RAM=1) in CMake file
 //Performance may otherwise be significantly hampered due to the veneers translating function calls between RAM/flash
-#ifdef RASTERIZER_IN_FLASH
+#if defined(RASTERIZER_IN_FLASH) || !defined(PICO_BUILD)
 #define RASTERIZE_SECTION
 #else
 #include "pico/platform.h"

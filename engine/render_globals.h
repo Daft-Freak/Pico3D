@@ -5,7 +5,11 @@
 
 using color_t = uint16_t;
 
+#ifdef BLIT_BOARD_PIMORONI_PICOSYSTEM
 #define SCREEN_WIDTH  120
+#else
+#define SCREEN_WIDTH  160
+#endif
 #define SCREEN_HEIGHT 120
 #define PI 3.141592654
 

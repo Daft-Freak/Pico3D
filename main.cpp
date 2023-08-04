@@ -1,7 +1,11 @@
 #include "32blit.hpp"
 
+#ifdef PICO_BUILD
 #include "pico/multicore.h"
 #include "hardware/structs/bus_ctrl.h" //so we can set high bus priority on Core1 & have contention counters
+#define PICO_MULTICORE
+#endif
+
 #include <cstring> //memcpy etc.
 #include <math.h>
 
@@ -47,6 +51,11 @@ uint32_t perf_75_above = 0;
 //Framebuffer for second core to render into
 static volatile uint8_t *next_render_buf = nullptr;
 
+#ifndef PICO_MULTICORE
+static uint32_t cur_render_triangles = 0;
+#endif
+
+#ifdef PICO_MULTICORE
 //set core 1 on its dedicated rasterization function
 void core1_entry() {
     while (1) {
@@ -67,8 +76,7 @@ void core1_entry() {
         multicore_fifo_push_blocking(time);
     }
 }
-
-
+#endif
 
 
 int32_t render_sync() {
@@ -76,9 +84,19 @@ int32_t render_sync() {
 
     uint32_t core1_time = 0;
 
+#ifdef PICO_MULTICORE
     //we have to check if core 1 has completed its task
     //if it has, we can swap framebuffers and triangle lists
-    if (multicore_fifo_pop_timeout_us(5, &core1_time)) {
+    bool ready = multicore_fifo_pop_timeout_us(5, &core1_time);
+#else
+    // do render now
+    bool ready = true;
+    uint32_t time = now_us();
+    render_rasterize(cur_render_triangles, (uint16_t *)next_render_buf);
+    core1_time = us_diff(time, now_us());
+#endif
+
+    if (ready) {
         //instead of copying the framebuffer to the screen buffer (which is wasteful),
         //we simply swap in the framebuffer as the new screen buffer and use the old
         //screen buffer as the new framebuffer
@@ -99,11 +117,13 @@ int32_t render_sync() {
         //if any writes to flash memory are to be done, do it here before core1 is released
 
 
-
+#ifdef PICO_MULTICORE
         //once we have done all the needed transfers, we can tell core 1 to start rasterizing again
         //as argument we pass the expected amount of triangles to render
         multicore_fifo_push_blocking(number_triangles);
-
+#else
+        cur_render_triangles = number_triangles; // store for later
+#endif
 
         //performance counters
         #ifdef BENCHMARK
@@ -154,9 +174,14 @@ int32_t render_sync() {
 }
 
 void init() {
+    set_screen_mode(ScreenMode::lores, PixelFormat::RGB565);
+
+#ifdef PICO_MULTICORE
     //Launch the rasterizer on core 1
     multicore_launch_core1(core1_entry);
-    
+#endif
+
+#ifdef PICO_BUILD
     //set core1 to highest bus priority
     bus_ctrl_hw->priority = BUSCTRL_BUS_PRIORITY_PROC1_BITS;
 
@@ -167,11 +192,12 @@ void init() {
     bus_ctrl_hw->counter[2].sel = arbiter_sram2_perf_event_access_contested;
     bus_ctrl_hw->counter[3].sel = arbiter_sram3_perf_event_access_contested;
     #endif
+#endif
 
-
+#ifdef PICO_MULTICORE
     //We first need to tell core 1 to start rasterizing the first empty dummy frame
     multicore_fifo_push_blocking(0);
-    
+#endif
 
     //start the game immediately if desired, skipping start screen
     #ifdef SKIP_START
@@ -307,10 +333,10 @@ void render(uint32_t tick) {
     render_npcs();
     
 
-
+#ifdef PICO_MULTICORE
     // wait :(
     while(!multicore_fifo_rvalid());
-
+#endif
 
     //display UI unless a menu is open
     if (menu == 0) {
