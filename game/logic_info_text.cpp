@@ -6,9 +6,11 @@
 #include "../engine/render_globals.h"
 #include "../engine/chunk_globals.h"
 
+#include "assets.hpp"
+
 using namespace blit;
 
-static const Font &font = minimal_font; // TODO
+static const Font &font = picosystem_font;
 
 #define INFO_TIMER 120 //display any info for around 3 seconds
 

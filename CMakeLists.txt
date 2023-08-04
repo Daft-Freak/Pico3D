@@ -65,6 +65,8 @@ blit_executable(
     ${ZOMBIE_SOURCES}
 )
 
+blit_assets_yaml(pico3d assets.yml)
+
 target_compile_definitions(pico3d PUBLIC ${GLOBAL_DEFINES} ALLOW_HIRES=0)
 target_compile_definitions(pico3d PUBLIC PICO_DIVIDER_IN_RAM=1)
 target_link_libraries(pico3d pico_multicore)

@@ -1,0 +1,5 @@
+assets.cpp:
+  assets/font.png:
+    name: picosystem_font
+    type: font/image
+    space_width: 2

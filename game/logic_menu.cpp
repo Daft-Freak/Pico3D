@@ -4,9 +4,11 @@
 
 #include "logic_globals.h"
 
+#include "assets.hpp"
+
 using namespace blit;
 
-static const Font &font = minimal_font; // TODO
+static const Font &font = picosystem_font;
 
 int32_t menu = MENU_START;
 
