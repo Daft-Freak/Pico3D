@@ -173,7 +173,7 @@ void logic_input() {
 
         #ifndef BENCHMARK //Benchmark disables inputs
 
-        if (buttons) {
+        if (buttons & (DPAD_LEFT | DPAD_RIGHT | DPAD_UP | DPAD_DOWN | A | B | X | Y)) {
             logic_new_game();
             menu = 0;
         }
