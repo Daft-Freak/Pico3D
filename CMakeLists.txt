@@ -66,6 +66,7 @@ blit_executable(
 )
 
 blit_assets_yaml(pico3d assets.yml)
+blit_metadata(pico3d metadata.yml)
 
 target_compile_definitions(pico3d PUBLIC ${GLOBAL_DEFINES} ALLOW_HIRES=0)
 

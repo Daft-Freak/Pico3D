@@ -1,0 +1,10 @@
+title: Pico3D
+description: Open World 3D Game Engine
+author: Bernhard Strobl
+splash:
+  file: assets/splash.png
+icon:
+  file: assets/icon.png
+version: v1.1.0-b
+category: game
+url: https://github.com/bernhardstrobl/Pico3D
