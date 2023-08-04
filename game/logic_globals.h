@@ -1,4 +1,4 @@
-#include "picosystem.hpp"
+#include <cstdint>
 
 extern uint32_t global_time;
 
@@ -113,7 +113,7 @@ struct npc{
     int8_t status = -1; //-1 is an unused npc
     int8_t direction; //direction npc is facing
     int16_t progress; //walking animations etc.
-    picosystem::color_t shirt_color; //walking animations etc.
+    uint16_t shirt_color; //walking animations etc.
     int8_t health; //health (only applies to zombies)
     int8_t dialogue; //the current dialogue of the quest npc
     int32_t x;

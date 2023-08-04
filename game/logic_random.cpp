@@ -1,4 +1,4 @@
-#include "picosystem.hpp"
+#include "32blit.hpp"
 
 static int32_t last_rand = 0;
 
@@ -6,7 +6,7 @@ static int32_t last_rand = 0;
 int32_t random(int32_t rand_min, int32_t rand_max) {
 
 
-    int32_t rand = (picosystem::time() + last_rand) % ((rand_max + 1) - rand_min);
+    int32_t rand = (blit::now() + last_rand) % ((rand_max + 1) - rand_min);
     last_rand = rand;
     return rand_min + rand;
     //return 4;

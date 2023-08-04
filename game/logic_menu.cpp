@@ -1,10 +1,12 @@
 //display and handle different menus (main, shop and death etc.)
 //menus usually remove control in some way from the player by deactivating normal movement
-#include "picosystem.hpp"
+#include "32blit.hpp"
 
 #include "logic_globals.h"
 
-using namespace picosystem;
+using namespace blit;
+
+static const Font &font = minimal_font; // TODO
 
 int32_t menu = MENU_START;
 
@@ -22,64 +24,64 @@ extern uint32_t perf_75_above;
 void display_menu() {
 
     if (menu == MENU_MAIN) {
-        pen(15, 15, 15);
+        screen.pen = {255, 255, 255};
 
-        text("MENU:", 0, 0);
+        screen.text("MENU:", font, {0, 0});
 
-        text("Health: " + str(player_health), 0, 20);
-        text("Ammo: " + str(player_ammo), 0, 30);
-        text("Kills: " + str(player_kills), 0, 40);
-        text("Money: " + str(player_money) + "$", 0, 50);
-        text("Battery:" + str(battery()), 0, 60);
+        screen.text("Health: " + std::to_string(player_health), font, {0, 20});
+        screen.text("Ammo: " + std::to_string(player_ammo), font, {0, 30});
+        screen.text("Kills: " + std::to_string(player_kills), font, {0, 40});
+        screen.text("Money: " + std::to_string(player_money) + "$", font, {0, 50});
+        //screen.text("Battery:" + std::to_string(battery()), font, {0, 60});
 
         //additional debug info if needed
         #ifdef FRAME_COUNTER
-        text("40:" + str(perf_25_below), 60, 0);
-        text("20:" + str(perf_50_below), 60, 10);
-        text("13:" + str(perf_75_below), 60, 20);
-        text("<13:" + str(perf_75_above), 60, 30);
+        screen.text("40:" + std::to_string(perf_25_below), font, {60, 0});
+        screen.text("20:" + std::to_string(perf_50_below), font, {60, 10});
+        screen.text("13:" + std::to_string(perf_75_below), font, {60, 20});
+        screen.text("<13:" + std::to_string(perf_75_above), font, {60, 30});
         #endif
 
         //additional debug info if needed
         #ifdef DEBUG_INFO
         //amount of triangles passed on to Core1 for rasterization
-        text("#R: " + str(rendered_triangles), 0, 70);
+        screen.text("#R: " + std::to_string(rendered_triangles), font, {0, 70});
 
         //amount of triangles stored in the chunk cache
-        text("#C: " + str(cached_triangles), 60, 70);
+        screen.text("#C: " + std::to_string(cached_triangles), font, {60, 70});
 
         //Core 0 logic (update) time
-        text("C0U:" + str(logic_time), 0, 80);
+        screen.text("C0U:" + std::to_string(logic_time), font, {0, 80});
         #endif
 
 
         //Info Text to exit menu/change certain settings
-        text("UP/DOWN: Display(" + str(brightness) + ")", 0, 100);
-        text("Y: Exit", 0, 110);
-        //text("Y: Exit   A: Sound ON", 0, 110);
+        screen.text("UP/DOWN: Display(" + std::to_string(brightness) + ")", font, {0, 100});
+        screen.text("Y: Exit", font, {0, 110});
+        //screen.text("Y: Exit   A: Sound ON", font, {0, 110});
 
     //Start screen/splash screen
     } else if (menu == MENU_START) {
-        pen(15, 15, 15);
+        screen.pen = {255, 255, 255};
 
         #ifdef BENCHMARK
         if (benchmark_complete == 0) {
-            text("BENCHMARKING", 0, 0);
+            screen.text("BENCHMARKING", font, {0, 0});
         }
         #else
         if (demo_progress < 2500) {
-            text("Pico3D Engine", 28, 20);
-            text("by: Bernhard Strobl", 10, 30);
+            screen.text("Pico3D Engine", font, {28, 20});
+            screen.text("by: Bernhard Strobl", font, {10, 30});
         }
 
         if ((demo_progress / 32) % 2 == 0) {
-            text("Press any button", 20, 90);
+            screen.text("Press any button", font, {20, 90});
         }
         #endif
 
     } else if (menu == MENU_DEATH) {
-        pen(15, 0, 0);
-        text("YOU DIED!", 38, 20);
+        screen.pen = {255, 0, 0};
+        screen.text("YOU DIED!", font, {38, 20});
     }
 
 }

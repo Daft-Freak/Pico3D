@@ -1,12 +1,14 @@
 //displays text when a player changes areas, npcs leave comments and shows things like health/ammo in the outskirts etc.
 //this differs from menus in that information is only overlaid and movement is never compromised
-#include "picosystem.hpp"
+#include "32blit.hpp"
 
 #include "logic_globals.h"
 #include "../engine/render_globals.h"
 #include "../engine/chunk_globals.h"
 
-using namespace picosystem;
+using namespace blit;
+
+static const Font &font = minimal_font; // TODO
 
 #define INFO_TIMER 120 //display any info for around 3 seconds
 
@@ -58,67 +60,67 @@ void display_info() {
 
         #ifndef GAMESCOM
         if (player_health < 30) {
-            pen(15, 0, 0);
+            screen.pen = {255, 0, 0};
         } else {
-            pen(15, 15, 15);
+            screen.pen = {255, 255, 255};
         }
 
-        text("+" + str(player_health), 0, 0);
+        screen.text("+" + std::to_string(player_health), font, {0, 0});
 
         if(player_ammo < 30) {
-            pen(15, 0, 0);
+            screen.pen = {255, 0, 0};
         } else {
-            pen(15, 15, 15);
+            screen.pen = {255, 255, 255};
         }
 
         //Position text depending on amount of bullets left
         if (player_ammo == 0) {
-            text("No Ammo", 75, 0);
+            screen.text("No Ammo", font, {75, 0});
         } else if (player_ammo > 99) {
-            text(str(player_ammo), 100, 0);
+            screen.text(std::to_string(player_ammo), font, {100, 0});
         } else if (player_ammo > 9) {
-            text(str(player_ammo), 107, 0);
+            screen.text(std::to_string(player_ammo), font, {107, 0});
         } else {
-            text(str(player_ammo), 114, 0);
+            screen.text(std::to_string(player_ammo), font, {114, 0});
         }
 
 
         //we only show score when shooting balloons
         #else
 
-        pen(15, 15, 15);
-        text(str(player_kills), 0, 0);
+        screen.pen = {255, 255, 255};
+        screen.text(std::to_string(player_kills), 0, 0);
 
         #endif
 
 
         //show cross hairs (or point) for shooting
-        pen(15, 0, 0);
-        pixel(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-        pixel(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 1);
-        pixel(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 2);
-        pixel(SCREEN_WIDTH / 2 - 1, SCREEN_HEIGHT / 2);
-        pixel(SCREEN_WIDTH / 2 - 2, SCREEN_HEIGHT / 2);
-        pixel(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 1);
-        pixel(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 2);
-        pixel(SCREEN_WIDTH / 2 + 1, SCREEN_HEIGHT / 2);
-        pixel(SCREEN_WIDTH / 2 + 2, SCREEN_HEIGHT / 2);
+        screen.pen = {255, 0, 0};
+        screen.pixel({SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2});
+        screen.pixel({SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 1});
+        screen.pixel({SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 2});
+        screen.pixel({SCREEN_WIDTH / 2 - 1, SCREEN_HEIGHT / 2});
+        screen.pixel({SCREEN_WIDTH / 2 - 2, SCREEN_HEIGHT / 2});
+        screen.pixel({SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 1});
+        screen.pixel({SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 2});
+        screen.pixel({SCREEN_WIDTH / 2 + 1, SCREEN_HEIGHT / 2});
+        screen.pixel({SCREEN_WIDTH / 2 + 2, SCREEN_HEIGHT / 2});
     }
 
     //show area name if needed
-    pen(15, 15, 15);
+    screen.pen = {255, 255, 255};
     if (info_time_remain != 0) {
         if (player_area == AREA_OUTSKIRTS) {
-            text("Outskirts", 38, 20);
+            screen.text("Outskirts", font, {38, 20});
         } else if (player_area == AREA_YAKUZA_ALLEY) {
-            text("Back Alley", 35, 20);
+            screen.text("Back Alley", font, {35, 20});
         } else if (player_area == AREA_DOWNTOWN) {
-            text("Downtown", 38, 20);
+            screen.text("Downtown", font, {38, 20});
         } else if (player_area == AREA_CITY_CENTER) {
-            text("City Center", 35, 20);
+            screen.text("City Center", font, {35, 20});
         } else if (player_area == AREA_OUTSKIRT_STABLES) {
-            text("Outskirt", 37, 20);
-            text("Stable", 40, 30);
+            screen.text("Outskirt", font, {37, 20});
+            screen.text("Stable", font, {40, 30});
         }
         info_time_remain--;
     }
@@ -126,14 +128,14 @@ void display_info() {
     //show talk button if quest/shop npc is close
     if (close_npc != -1) {
         if (close_npc == 1 && (npc_quest_list[close_npc].dialogue == 11 || npc_quest_list[close_npc].dialogue == 12)) {
-            text("A: Buy Ammo", 0, 110);
+            screen.text("A: Buy Ammo", font, {0, 110});
         }else {
-            text("A: Talk", 0, 110);
+            screen.text("A: Talk", font, {0, 110});
         }
     }
 
     if (show_battery == 1) {
-        text("Battery:" + str(battery()), 60, 110);
+        //screen.text("Battery:" + std::to_string(battery()), font {60, 110}); // FIXME: not exposed through blit API
     }
 
     //show dialogue from npc
@@ -141,49 +143,49 @@ void display_info() {
 
         #ifdef GAMESCOM
         switch(dialogue_display) {
-            case 0: text("Hey there!", 0, 100); break;
-            case 1: text("It's pretty boring", 0, 90); text("being on guard duty", 0, 100);break;
-            case 2: text("So I set up some", 0, 90); text("balloons outside", 0, 100); break;
-            case 3: text("See if you can", 0, 90); text("shoot them all down", 0, 100); break;
-            case 4: text("The gates close", 0, 90); text("at night though", 0, 100); break;
-            case 5: text("But the balloons", 0, 90); text("glow in the dark!", 0, 100); break;
+            case 0: screen.text("Hey there!", font, {0, 100}); break;
+            case 1: screen.text("It's pretty boring", font, {0, 90}); screen.text("being on guard duty", font, {0, 100});break;
+            case 2: screen.text("So I set up some", font, {0, 90}); screen.text("balloons outside", font, {0, 100}); break;
+            case 3: screen.text("See if you can", font, {0, 90}); screen.text("shoot them all down", font, {0, 100}); break;
+            case 4: screen.text("The gates close", font, {0, 90}); screen.text("at night though", font, {0, 100}); break;
+            case 5: screen.text("But the balloons", font, {0, 90}); screen.text("glow in the dark!", font, {0, 100}); break;
             case 6: if (player_kills < 100) {
-                        text("See if you can shoot", 0, 90); 
-                        text("all the balloons down!", 0, 100); break;
+                        screen.text("See if you can shoot", font, {0, 90}); 
+                        screen.text("all the balloons down!", font, {0, 100}); break;
                     } else {
-                        text("Wow you got them all!", 0, 90); 
-                        text("You're a balloon master!", 0, 100); break;
+                        screen.text("Wow you got them all!", font, {0, 90}); 
+                        screen.text("You're a balloon master!", font, {0, 100}); break;
                     }
         }
         #else
         switch(dialogue_display) {
-            case 0: text("Hey there! You seem", 0, 90); text("to be new around here.", 0, 100);break;
-            case 1: text("I am guarding the", 0, 90); text("city from zombies.", 0, 100);break;
-            case 2: text("Be careful if you", 0, 90); text("go out, they will attack.", 0, 100); break;
-            case 3: text("The gates close at", 0, 90); text("night. Be back by then.", 0, 100); break;
-            case 4: text("Zombies are more", 0, 90); text("aggressive in the dark.", 0, 100); break;
-            case 5: text("Try not to run out", 0, 90); text("of ammo out there.", 0, 100); break;
+            case 0: screen.text("Hey there! You seem", font, {0, 90}); screen.text("to be new around here.", font, {0, 100});break;
+            case 1: screen.text("I am guarding the", font, {0, 90}); screen.text("city from zombies.", font, {0, 100});break;
+            case 2: screen.text("Be careful if you", font, {0, 90}); screen.text("go out, they will attack.", font, {0, 100}); break;
+            case 3: screen.text("The gates close at", font, {0, 90}); screen.text("night. Be back by then.", font, {0, 100}); break;
+            case 4: screen.text("Zombies are more", font, {0, 90}); screen.text("aggressive in the dark.", font, {0, 100}); break;
+            case 5: screen.text("Try not to run out", font, {0, 90}); screen.text("of ammo out there.", font, {0, 100}); break;
             case 6: if (player_kills <= 100) {
-                        text("See if you can kill", 0, 90); 
-                        text("a couple of the zombies.", 0, 100); break;
+                        screen.text("See if you can kill", font, {0, 90}); 
+                        screen.text("a couple of the zombies.", font, {0, 100}); break;
                     } else {
-                        text("Wow you got over a 100!", 0, 90); 
-                        text("You're a zombie killer!", 0, 100); break;
+                        screen.text("Wow you got over a 100!", font, {0, 90}); 
+                        screen.text("You're a zombie killer!", font, {0, 100}); break;
                     }
 
             
-            case 10:text("Need Bullets?", 0, 90); text("10$ for 5.", 0, 100);break;
-            case 11:text("Good hunting.", 0, 90); text(str(player_money + QUEST_AMMO_COST) + "$ -> " + str(player_money) + "$", 0, 100); break;
-            case 12:text("You don't have", 0, 90); text("enough money.", 0, 100); break;
+            case 10:screen.text("Need Bullets?", font, {0, 90}); screen.text("10$ for 5.", font, {0, 100});break;
+            case 11:screen.text("Good hunting.", font, {0, 90}); screen.text(std::to_string(player_money + QUEST_AMMO_COST) + "$ -> " + std::to_string(player_money) + "$", font, {0, 100}); break;
+            case 12:screen.text("You don't have", font, {0, 90}); screen.text("enough money.", font, {0, 100}); break;
 
 
-            case 20: text("Oh, well done for", 0, 90); text("making it here.", 0, 100);break;
-            case 21: text("The fire keeps the", 0, 90); text("zombies away.", 0, 100);break;
-            case 22: text("This place used to", 0, 90); text("have horses but...", 0, 100); break;
-            case 23: text("I mean look at the", 0, 90); text("surroundings...", 0, 100); break;
-            case 24: text("The stable owner is", 0, 90); text("pretty unhappy.", 0, 100); break;
-            case 25: text("Sells ammo to anyone", 0, 90); text("hoping it will help.", 0, 100); break;
-            case 26: text("Don't get killed and", 0, 90); text("get some rest here.", 0, 100); break;
+            case 20: screen.text("Oh, well done for", font, {0, 90}); screen.text("making it here.", font, {0, 100});break;
+            case 21: screen.text("The fire keeps the", font, {0, 90}); screen.text("zombies away.", font, {0, 100});break;
+            case 22: screen.text("This place used to", font, {0, 90}); screen.text("have horses but...", font, {0, 100}); break;
+            case 23: screen.text("I mean look at the", font, {0, 90}); screen.text("surroundings...", font, {0, 100}); break;
+            case 24: screen.text("The stable owner is", font, {0, 90}); screen.text("pretty unhappy.", font, {0, 100}); break;
+            case 25: screen.text("Sells ammo to anyone", font, {0, 90}); screen.text("hoping it will help.", font, {0, 100}); break;
+            case 26: screen.text("Don't get killed and", font, {0, 90}); screen.text("get some rest here.", font, {0, 100}); break;
         }
         #endif
 

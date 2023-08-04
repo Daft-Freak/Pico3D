@@ -1,19 +1,10 @@
 cmake_minimum_required(VERSION 3.12)
 
-# Pull in PICO SDK (must be before project)
-include(pico_sdk_import.cmake)
-
-project(pico32 C CXX ASM)
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
+project(pico3d)
 
 option(GAMESCOM "Build gamescom version" OFF)
 
-# Initialize the Pico SDK
-pico_sdk_init()
-
-# Find the PicoSystem SDK
-find_package(PICOSYSTEM REQUIRED)
+find_package (32BLIT CONFIG REQUIRED PATHS ../32blit-sdk)
 
 set(GLOBAL_DEFINES)
 
@@ -45,7 +36,7 @@ endif()
 #list(APPEND GLOBAL_DEFINES CPU_LED_LOAD) #CPU load on LED (Core1: Green-40fps, Yellow-20fps, Red-10fps), blue if core 0 overloaded (logic too slow)
 #list(APPEND GLOBAL_DEFINES BENCHMARK) #starts a benchmark recording average frametime and rough fps counter (takes 3 minutes!)
 
-picosystem_executable(
+blit_executable(
     pico3d
     main.cpp
     chunk_data.cpp
@@ -74,10 +65,6 @@ picosystem_executable(
     ${ZOMBIE_SOURCES}
 )
 
-
-pixel_double(pico3d)
-disable_startup_logo(pico3d)
-no_spritesheet(pico3d)
-target_compile_definitions(pico3d PUBLIC ${GLOBAL_DEFINES})
+target_compile_definitions(pico3d PUBLIC ${GLOBAL_DEFINES} ALLOW_HIRES=0)
 target_compile_definitions(pico3d PUBLIC PICO_DIVIDER_IN_RAM=1)
 target_link_libraries(pico3d pico_multicore)

@@ -1,11 +1,13 @@
 //handle inputs of the console
 
+#include "32blit.hpp"
+
 #include "logic_globals.h"
 #include "../engine/render_globals.h"
 #include "../engine/render_math.h"
 #include "../engine/chunk_globals.h"
 
-using namespace picosystem;
+using namespace blit;
 
 extern int32_t show_battery;
 
@@ -42,37 +44,37 @@ void logic_input() {
 
         //process input to transform camera
         //turn left
-        if (button(LEFT) == true) {
+        if (buttons & DPAD_LEFT) {
             yaw += INPUT_SENSITIVITY;
             update_camera();
         }
 
         //turn right
-        if (button(RIGHT) == true) {
+        if (buttons & DPAD_RIGHT) {
             yaw -= INPUT_SENSITIVITY;
             update_camera();
         }
 
         //Forward
-        if (button(UP) == true) {
+        if (buttons & DPAD_UP) {
             try_move_camera(INPUT_SENSITIVITY);
             update_camera();
         }
 
         //Back
-        if (button(DOWN) == true) {
+        if (buttons & DPAD_DOWN) {
             try_move_camera(-INPUT_SENSITIVITY);
             update_camera();
         }
 
         //Look up
-        if (button(X) == true) {
+        if (buttons & X) {
             pitch += 0.1;
             update_camera();
         }
 
         //Look down
-        if (button(B) == true) {
+        if (buttons & B) {
             pitch -= 0.1;
             update_camera();
         }   
@@ -80,7 +82,7 @@ void logic_input() {
 
 
         //Context sensitive A button
-        if (pressed(A) == true) {
+        if (buttons & A) {
             //shoot at zombies
             if (player_area == AREA_OUTSKIRTS) {
                 logic_shoot();
@@ -93,12 +95,12 @@ void logic_input() {
 
         #ifndef GAMESCOM
         //open game menu
-        if (pressed(Y) == true) {
+        if (buttons & Y) {
             menu = MENU_MAIN;
         }
         #else
         //show battery life
-        if (button(Y) == true) {
+        if (buttons & Y) {
             show_battery = 1;
         } else {
             show_battery = 0;
@@ -110,51 +112,51 @@ void logic_input() {
     } else if (menu == MENU_MAIN) {
 
         //close menu
-        if (pressed(Y) == true) {
+        if (buttons & Y) {
             menu = 0;
         }
 
         //Increase screen brightness
-        if (pressed(UP) == true) {
+        if (buttons & DPAD_UP) {
             brightness += BACKLIGHT_INCREMENT;
             if (brightness > 100) {
                 brightness = 100;
             }
-            backlight(brightness);
+            //backlight(brightness); // FIXME: not exposed through blit api
         }
 
         //Lower screen brightness
-        if (pressed(DOWN) == true) {
+        if (buttons & DPAD_DOWN) {
             brightness -= BACKLIGHT_INCREMENT;
             if (brightness < 0) {
                 brightness = 0;
             }
-            backlight(brightness);
+            //backlight(brightness);
         }
 
         #ifdef FREE_ROAM
         //move up
-        if (button(X) == true) {
+        if (buttons & X) {
             camera_position[1] += 0.1;
             update_camera();
 
         }
 
         //move down
-        if (button(B) == true) {
+        if (buttons & B) {
             camera_position[1] -= 0.1;
             update_camera();
         }
         #endif
 
         //TODO: sound on/off
-        if (pressed(A) == true) {
+        if (buttons & A) {
 
         }
 
         #ifdef DEBUG_SHADERS
         //cycle through debug shaders if the feature is on
-        if (pressed(LEFT) == true) {
+        if buttons & DPAD_LEFT) {
             //Lowest debug shader ID
             if (shader_override < 250) {
                 shader_override = 250;
@@ -170,7 +172,8 @@ void logic_input() {
     } else if (menu == MENU_START) {
 
         #ifndef BENCHMARK //Benchmark disables inputs
-        if (pressed(A) || pressed(B) || pressed(X) || pressed(Y) || pressed(UP) || pressed(DOWN) || pressed(LEFT) || pressed(RIGHT)) {
+
+        if (buttons) {
             logic_new_game();
             menu = 0;
         }
