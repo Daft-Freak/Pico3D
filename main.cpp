@@ -51,6 +51,11 @@ uint32_t perf_75_above = 0;
 //Framebuffer for second core to render into
 static volatile uint8_t *next_render_buf = nullptr;
 
+#ifdef BLIT_BOARD_PIMORONI_PICOVISION
+static uint16_t temp_framebuffer[160 * 120];
+static blit::Surface temp_screen((uint8_t *)temp_framebuffer, blit::PixelFormat::BGR555, {160, 120});
+#endif
+
 #ifndef PICO_MULTICORE
 static uint32_t cur_render_triangles = 0;
 #endif
@@ -276,7 +281,12 @@ void update(uint32_t tick) {
 
 void render(uint32_t tick) {
 
+#ifdef BLIT_BOARD_PIMORONI_PICOVISION
+    // no screen.data here
+    next_render_buf = (uint8_t *)temp_framebuffer;
+#else
     next_render_buf = screen.data;
+#endif
 
     //Measuring performance is important, hence lots of debug to check how long something takes (start timer on core0)
     uint32_t core0_time = now_us();
@@ -336,6 +346,11 @@ void render(uint32_t tick) {
 #ifdef PICO_MULTICORE
     // wait :(
     while(!multicore_fifo_rvalid());
+#endif
+
+#ifdef BLIT_BOARD_PIMORONI_PICOVISION
+    // TODO: double-buffer and remove above wait?
+    screen.blit(&temp_screen, {0, 0, 160, 120}, {0, 0});
 #endif
 
     //display UI unless a menu is open
