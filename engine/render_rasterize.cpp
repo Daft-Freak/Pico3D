@@ -28,6 +28,17 @@ uint8_t animated_texture_counter = 0;
 #define RASTERIZE_SECTION __scratch_x("render_rasterize")
 #endif
 
+#ifdef BLIT_BOARD_PIMORONI_PICOVISION
+// convert to 555 and R/B swap
+inline constexpr uint16_t pack_colour(uint8_t r, uint8_t g, uint8_t b) {
+    return r << 10 | (g >> 1) << 5 | b;
+}
+
+inline constexpr uint16_t convert_colour(uint16_t col) {
+    return (col & 0x7C0) >> 1 | col >> 11 | col << 10;
+}
+#else
+// 565 all the way
 inline constexpr uint16_t pack_colour(uint8_t r, uint8_t g, uint8_t b) {
     return r | g << 5 | b << 11;
 }
@@ -35,6 +46,7 @@ inline constexpr uint16_t pack_colour(uint8_t r, uint8_t g, uint8_t b) {
 inline constexpr uint16_t convert_colour(uint16_t col) {
     return col;
 }
+#endif
 
 void RASTERIZE_SECTION render_rasterize(uint32_t num_triangle, color_t *fb) {
 
