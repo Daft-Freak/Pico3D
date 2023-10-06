@@ -28,6 +28,14 @@ uint8_t animated_texture_counter = 0;
 #define RASTERIZE_SECTION __scratch_x("render_rasterize")
 #endif
 
+inline constexpr uint16_t pack_colour(uint8_t r, uint8_t g, uint8_t b) {
+    return r | g << 5 | b << 11;
+}
+
+inline constexpr uint16_t convert_colour(uint16_t col) {
+    return col;
+}
+
 void RASTERIZE_SECTION render_rasterize(uint32_t num_triangle, color_t *fb) {
 
     //we clear the screen either to a default black color (Fastest at around 60us)
@@ -41,7 +49,7 @@ void RASTERIZE_SECTION render_rasterize(uint32_t num_triangle, color_t *fb) {
     }*/
 
     for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++) {
-        fb[i] = sky; //GBAR
+        fb[i] = convert_colour(sky); //GBAR
     }
     
 
@@ -218,7 +226,7 @@ void RASTERIZE_SECTION render_rasterize(uint32_t num_triangle, color_t *fb) {
                 //flat shading using first vertex color as triangle color
                 if (shader_id == 1) {
                     color_t triangle_color = triangle_list_current[current_triangle].vertex_parameter1.color;
-                    fb[y * SCREEN_WIDTH + x] = triangle_color; 
+                    fb[y * SCREEN_WIDTH + x] = convert_colour(triangle_color); 
 
 
                 //linear color interpolation shader using separate vertex colors given by triangle
@@ -251,13 +259,7 @@ void RASTERIZE_SECTION render_rasterize(uint32_t num_triangle, color_t *fb) {
                     if (b < 31)
                         b++;
 
-                    color = b;
-                    color <<= 6;
-                    color |= g;
-                    color <<= 5;
-                    color |= r;
-
-                    fb[y * SCREEN_WIDTH + x] = color;
+                    fb[y * SCREEN_WIDTH + x] = pack_colour(r, g, b);
 
 
                 //Textures shaders exported by the chunk export
@@ -278,7 +280,7 @@ void RASTERIZE_SECTION render_rasterize(uint32_t num_triangle, color_t *fb) {
                     if (v > image_size - 1)
                         v = image_size - 1;
 
-                    fb[y * SCREEN_WIDTH + x] = texture[u * image_size + v];
+                    fb[y * SCREEN_WIDTH + x] = convert_colour(texture[u * image_size + v]);
 
 
                 //Scrolling Texture by chunk export
@@ -301,7 +303,7 @@ void RASTERIZE_SECTION render_rasterize(uint32_t num_triangle, color_t *fb) {
 
                     u = (u + animated_texture_offset) % 32;
 
-                    fb[y * SCREEN_WIDTH + x] = texture[u * image_size + v];
+                    fb[y * SCREEN_WIDTH + x] = convert_colour(texture[u * image_size + v]);
 
                 
                 #ifdef DEBUG_SHADERS
